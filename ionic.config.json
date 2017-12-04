@@ -2,5 +2,7 @@
   "name": "Kitshake",
   "app_id": "0ace044a",
   "type": "ionic-angular",
-  "integrations": {}
+  "integrations": {
+    "cordova": {}
+  }
 }
