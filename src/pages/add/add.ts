@@ -1,9 +1,17 @@
 import { Component } from '@angular/core';
-import { NavController } from 'ionic-angular';
+import { IonicPage, NavController, NavParams } from 'ionic-angular';
 
 import { SQLite, SQLiteDatabaseConfig, SQLiteObject } from '@ionic-native/sqlite';
+import { Toast } from '@ionic-native/toast';
 
-import { SQLiteMock } from '@ionic-native-mocks/sqlite';
+import {Validators, FormBuilder, FormGroup } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule }   from '@angular/forms';
+import { AbstractControl } from '@angular/forms';
+
+import {FormControl} from "@angular/forms";
+// Import ionic2-rating module
+import { Ionic2RatingModule } from 'ionic2-rating'; 
+import { SuccessAddPage } from '../success-add/success-add';
 
 
 @Component({
@@ -14,28 +22,82 @@ import { SQLiteMock } from '@ionic-native-mocks/sqlite';
 
 export class AddPage {
 
-  constructor(public navCtrl: NavController, private sqlite: SQLiteMock) {
-      
+  formGroupAdd : FormGroup;
+  
+  constructor(public navCtrl: NavController, public navParams: NavParams, private sqlite: SQLite, private formBuilder: FormBuilder, private toast:Toast ) {
 
 
-      this.sqlite.create({
-        name: 'data.db',
-        location: 'default'
-      })
-        .then((db: SQLiteObject) => {
+    this.navCtrl = navCtrl;
+    this.formGroupAdd = this.formBuilder.group({
+      name: ['', Validators.required],
+      location: ['', Validators.required],
+      star: ['5', Validators.required],
+      price: ['3', Validators.required],
+      type: ['africaine', Validators.required],
+      review: ['', Validators.required],
+      //file: ['', Validators.required]
 
 
-          db.executeSql('create table danceMoves(name VARCHAR(32))', {})
-            .then(() => console.log('Executed SQL'))
-            .catch(e => console.log(e));
+    });
 
 
-        })
-        .catch(e => console.log(e));
+
 
   }
 
 
+
+
+  
+  addRestaurantForm(value: any): void{
+    console.log(this.formGroupAdd.value);
+
+
+    if(this.formGroupAdd.valid) {
+
+      this.sqlite.create({
+        name: 'ionicdb.db',
+        location: 'default'
+      }).then((db: SQLiteObject) => {
+
+        db.executeSql('INSERT INTO restaurants VALUES(NULL,?,?,?,?,?,?)',[value.name,value.location,value.star,value.price, value.type, value.review ])
+          .then(res => {
+            console.log(res);
+            this.toast.show('Data saved', '5000', 'center').subscribe(
+              toast => {
+                this.navCtrl.popToRoot();
+              }
+            );
+          })
+          .catch(e => {
+            console.log(e);
+            this.toast.show(e, '5000', 'center').subscribe(
+              toast => {
+                console.log(toast);
+              }
+            );
+          });
+      }).catch(e => {
+        console.log(e);
+        this.toast.show(e, '5000', 'center').subscribe(
+          toast => {
+            console.log(toast);
+          }
+        );
+      });
+  }
+
+
+//this.navCtrl.push(SuccessAddPage);
+
+  }
+
+
+
+ ngOnInit(){
+
+
+ }
 
   
 
